@@ -34,10 +34,11 @@
     "dependencies": {
         "@fleetbase/sdk": "^1.1.6",
         "@fleetbase/storefront": "^1.0.4",
+        "@ember/render-modifiers": "^2.0.4",
         "ember-auto-import": "^1.11.3",
-        "ember-get-config": "^1.0.2",
         "ember-cli-babel": "^7.26.6",
         "ember-cli-htmlbars": "^5.7.1",
+        "ember-get-config": "^1.0.2",
         "ember-local-storage": "^2.0.1"
     },
     "devDependencies": {

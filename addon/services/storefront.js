@@ -1,58 +1,57 @@
 import Service from '@ember/service';
 import Storefront from '@fleetbase/storefront';
 import { storageFor } from 'ember-local-storage';
-import { getOwner } from '@ember/application';
 import { get, set } from '@ember/object';
 import config from 'ember-get-config';
 
 export default class StorefrontService extends Service {
-    constructor() {
-        super(...arguments);
+  constructor() {
+    super(...arguments);
 
-        let sdk;
+    let sdk;
 
-        try {
-            sdk = new Storefront(this.config?.key, {
-                host: this.host,
-            });
-        } catch (error) {
-            throw error;
+    try {
+      sdk = new Storefront(this.config?.key, {
+        host: this.host,
+      });
+    } catch (error) {
+      throw error;
+    }
+
+    for (let key in sdk) {
+      if (Object.prototype.hasOwnProperty.call(sdk, key)) {
+        set(this, key, sdk[key]);
+      }
+    }
+
+    this.about = () => {
+      return new Promise((resolve, reject) => {
+        if (this.storage.get('about')) {
+          return resolve(this.storage.get('about'));
         }
 
-        for (let key in sdk) {
-            if (Object.prototype.hasOwnProperty.call(sdk, key)) {
-                set(this, key, sdk[key]);
-            }
-        }
+        return sdk
+          .about()
+          .then((response) => {
+            this.storage.set('about', response);
 
-        this.about = () => {
-            return new Promise((resolve, reject) => {
-                if (this.storage.get('about')) {
-                    return resolve(this.storage.get('about'));
-                }
+            return response;
+          })
+          .then(resolve)
+          .catch(reject);
+      });
+    };
 
-                return sdk
-                    .about()
-                    .then((response) => {
-                        this.storage.set('about', response);
+    this.search = sdk.search;
+  }
 
-                        return response;
-                    })
-                    .then(resolve)
-                    .catch(reject);
-            });
-        };
+  @storageFor('application') storage;
 
-        this.search = sdk.search;
-    }
+  get config() {
+    return config.storefront;
+  }
 
-    @storageFor('application') storage;
-
-    get config() {
-        return get(config, 'storefront');
-    }
-
-    get host() {
-        return get(config, 'fleetbase.host');
-    }
+  get host() {
+    return get(config, 'fleetbase.host');
+  }
 }
